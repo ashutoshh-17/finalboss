@@ -1,0 +1,4 @@
+Compile Server and Client
+Run rmiregistry on separate cmd
+Run java Server
+Run java Client

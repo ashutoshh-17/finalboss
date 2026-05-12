@@ -1,0 +1,12 @@
+Compile BullyProcess and RingProcess
+For Bully run 5 terminals ->
+java BullyProcess 0
+java BullyProcess 1
+java BullyProcess 2
+java BullyProcess 3
+java BullyProcess 4
+
+For Ring run 3 terminals ->
+java RingProcess 1 6001 6002
+java RingProcess 2 6002 6003
+java RingProcess 3 6003 6001

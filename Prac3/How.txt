@@ -1,0 +1,4 @@
+Compile -> gcc -fopenmp sum.c
+Run as -> ./a.out
+optional -> set OMP_NUM_THREADS=4
+            sum

@@ -1,0 +1,3 @@
+Compile Server and Client
+run Server
+Run Client in three different terminals
