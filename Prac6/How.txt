@@ -1,3 +1,5 @@
+Problem Statement : Implement Bully and Ring algorithm for leader election.
+
 Compile BullyProcess and RingProcess
 For Bully run 5 terminals ->
 java BullyProcess 0
