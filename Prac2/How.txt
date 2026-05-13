@@ -1,3 +1,7 @@
+Problem Statement : Develop any distributed application using CORBA to demonstrate object 
+brokering. 
+(Calculator or String operations). 
+
 Make Calculator.idl file and CaalculatorImpl.java
 In cmd put -> idlj -fall Calculator.idl
 Compile all java files -> javac *.java CalculatorApp/*.java
