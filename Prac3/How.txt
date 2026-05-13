@@ -1,3 +1,8 @@
+Problem Statement : Develop a distributed system, to find sum of N elements in an array by 
+distributing N/n elements to n number of processors MPI or OpenMP. 
+Demonstrate by displaying the intermediate sums calculated at different 
+processors. 
+
 Compile -> gcc -fopenmp sum.c
 Run as -> ./a.out
 optional -> set OMP_NUM_THREADS=5     //any number other than 4
