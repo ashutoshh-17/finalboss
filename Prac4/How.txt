@@ -1,3 +1,5 @@
+Problem Statement : Implement Berkeley algorithm for clock synchronization.
+
 Compile Server and Client
 run Server
 Run Client in three different terminals
