@@ -1,3 +1,6 @@
+Problem Statement : Create a simple web service and write any distributed application to consume 
+the web service. 
+
 Compile server and client
 Run server and client
 also check on browser -> http://localhost:8000/add?a=20&b=30
