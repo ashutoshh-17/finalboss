@@ -4,3 +4,362 @@ Compile Server and Client
 Run rmiregistry on separate cmd
 Run java Server
 Run java Client
+
+1) What this program is about?
+This program implements multi-threaded client-server communication using Java RMI in Distributed Systems.
+It allows multiple clients to communicate with a remote server simultaneously.
+Simple Explanation
+
+
+Client sends a message to server
+
+
+Server receives the message
+
+
+Server processes request
+
+
+Server returns response back to client
+
+
+In this program, many client threads send requests at the same time, and Java RMI automatically creates separate threads on the server side to handle each client independently.
+This practical is part of Distributed Systems Lab Assignment 1. 
+
+What is Java RMI?
+RMI = Remote Method Invocation
+RMI is a Java API used to call methods of an object that exists on another machine/JVM.
+Normally:
+obj.method();
+works locally.
+With RMI:
+
+
+client calls method remotely
+
+
+method executes on server machine
+
+
+result comes back to client
+
+
+It feels like calling a local method, but actually communication happens over the network.
+
+What is rmiregistry and why is it used?
+Simple Definition
+rmiregistry is a naming service in Java RMI.
+It stores:
+Name  -> Remote Object Reference
+Example:
+"MyServer" -> Remote Server Object
+
+Why it is needed?
+Client does not know:
+
+
+where server object exists
+
+
+memory address of object
+
+
+So client asks registry:
+"Give me object named MyServer"
+Registry returns remote object reference.
+Then client can call remote methods.
+
+Real-life analogy
+Think of rmiregistry like:
+Mobile Contacts List
+You save:
+Mom -> Phone Number
+Similarly:
+MyServer -> Remote Object
+Client searches by name instead of remembering address.
+The manual also defines RMI Registry as a bootstrap naming service used to bind remote objects and allow clients to look them up. 
+
+2) Real-life applications in Distributed Systems
+1. Banking System
+
+
+Client requests balance
+
+
+Server processes request
+
+
+Server sends result
+
+
+Example:
+ATM ↔ Bank Server
+
+2. Online Food Delivery
+
+
+App sends order
+
+
+Remote server processes order
+
+
+Restaurant receives request
+
+
+
+3. Chat Applications
+
+
+Multiple users connect simultaneously
+
+
+Each client handled by separate thread
+
+
+
+4. Distributed File Sharing
+
+
+Client requests file from remote server
+
+
+Server sends file data
+
+
+
+5. College ERP System
+
+
+Student client requests marks/attendance
+
+
+Central server sends data
+
+
+
+3) Explanation of Each File
+A) RemoteInterface.java
+public interface RemoteInterface extends Remote
+Purpose
+This file defines remote methods that client can call.
+It acts like a contract between client and server.
+
+Important Words
+interface
+Contains only method declarations.
+extends Remote
+Makes this interface accessible remotely using RMI.
+RemoteException
+Handles network-related errors.
+
+Method
+String sendMessage(String msg)
+Client sends message to server.
+Server returns response string.
+
+Viva Line
+
+Remote interface defines methods that can be called remotely by the client.
+
+
+B) RemoteImpl.java
+public class RemoteImpl extends UnicastRemoteObjectimplements RemoteInterface
+Purpose
+Actual implementation of remote methods.
+This is the real server object.
+
+Important Words
+UnicastRemoteObject
+Makes object available for remote communication.
+implements RemoteInterface
+Compulsory because class must define remote methods.
+Constructor
+protected RemoteImpl() throws RemoteException
+Exports remote object to RMI runtime.
+
+Main Method
+sendMessage(String msg)
+What happens?
+
+
+Receives client message
+
+
+Gets current thread name
+
+
+Prints thread info
+
+
+Returns response
+
+
+
+Multi-threading concept
+Thread.currentThread().getName()
+Shows which thread handled which client.
+Each client request runs in separate thread automatically.
+Example:
+Thread-1Thread-2Thread-3
+
+Important Viva Point
+Java RMI internally creates separate threads for handling multiple client requests simultaneously.
+
+C) Server.java
+Purpose
+Starts RMI server and registers remote object.
+
+Important Words
+Naming.rebind()
+Naming.rebind("rmi://localhost:1099/MyServer", obj);
+Registers remote object with name:
+MyServer
+
+1099
+Default RMI registry port.
+
+Flow
+
+
+Create remote object
+
+
+Bind object with registry
+
+
+Wait for client requests
+
+
+
+Output
+Server is running...
+
+D) Client.java
+Purpose
+Creates multiple clients using threads.
+
+Inner Class: ClientThread
+class ClientThread extends Thread
+Each thread acts like one client.
+
+Important Words
+Naming.lookup()
+Naming.lookup("rmi://localhost:1099/MyServer");
+Searches remote object from registry.
+
+Flow of Client
+
+
+Lookup server object
+
+
+Create message
+
+
+Call remote method
+
+
+Receive response
+
+
+Print response
+
+
+
+Main Method
+for (int i = 0; i < 5; i++)
+Creates 5 client threads.
+So:
+
+
+5 clients communicate simultaneously
+
+
+server handles all requests concurrently
+
+
+
+Overall Execution Flow
+Step-by-step
+Step 1
+Start:
+rmiregistry
+Starts naming service.
+
+Step 2
+Run Server:
+java Server
+Server registers object:
+MyServer
+
+Step 3
+Run Client:
+java Client
+
+Step 4
+Each client thread:
+
+
+looks up server
+
+
+sends message
+
+
+
+Step 5
+Server receives requests in different threads.
+
+Step 6
+Server sends responses back.
+
+Architecture Flow
+Client Thread      ↓RMI Registry      ↓Remote Object      ↓Server Method Executes      ↓Response Returned
+
+Important Keywords with Meaning
+KeywordMeaningRMIRemote Method InvocationRemote InterfaceDeclares remote methodsRemote ObjectObject accessed remotelyStubClient-side proxyRegistryNaming serviceThreadIndependent execution pathRemoteExceptionHandles network errorslookup()Finds remote objectrebind()Registers remote object
+The lab manual also explains Stub and Skeleton communication in RMI architecture. 
+
+4) Viva Questions (Most Important)
+Q1) What is RMI?
+Answer:
+RMI stands for Remote Method Invocation.
+It allows a Java object on one machine to call methods of an object running on another machine.
+
+Q2) Why do we use rmiregistry?
+Answer:
+rmiregistry is used to store and locate remote objects using names.
+Client uses lookup() to get remote object reference.
+
+Q3) Why does remote interface extend Remote?
+Answer:
+To indicate that methods can be invoked remotely through RMI.
+
+Q4) Why is RemoteException used?
+Answer:
+Because network communication may fail during remote method calls.
+
+Q5) How is multi-threading achieved here?
+Answer:
+Multiple client threads send requests simultaneously, and Java RMI automatically creates separate server threads for handling each request.
+
+Another Applications where rmiregistry can be used
+1. Online Examination System
+Students connect to remote exam server.
+
+2. Railway Reservation System
+Clients book tickets through central server.
+
+3. Hospital Management System
+Different departments access centralized records.
+
+4. Multiplayer Gaming Server
+Many players connect simultaneously.
+
+5. Distributed Calculator
+Client sends arithmetic operation to remote server.
+
+Short Conclusion for Viva
+
+This program demonstrates distributed communication using Java RMI where multiple clients communicate with a remote server simultaneously. Java RMI uses rmiregistry for locating remote objects, and multi-threading allows the server to handle many client requests concurrently.

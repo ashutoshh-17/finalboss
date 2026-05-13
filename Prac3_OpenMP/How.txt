@@ -5,5 +5,396 @@ processors.
 
 Compile -> gcc -fopenmp sum.c
 Run as -> ./a.out
-optional -> set OMP_NUM_THREADS=5     //any number other than 4
+optional -> set OMP_NUM_THREADS=5  //any number other than 4
+	    OR export OMP_NUM_THREADS=5
+
             ./a.out
+	    OR ./sum
+
+
+
+
+1) What this program is about?
+
+This program demonstrates parallel processing using OpenMP in Distributed Systems.
+
+The array is divided among multiple threads/processors, where:
+
+each thread calculates its own partial sum
+all partial sums are combined
+final total sum is displayed
+Simple Idea of Program
+
+Suppose array is:
+
+1 2 3 4 5 6 7 8
+
+Instead of one processor calculating entire sum:
+
+1+2+3+4+5+6+7+8
+
+OpenMP divides work:
+
+Thread	Elements	Partial Sum
+Thread 0	1 2	3
+Thread 1	3 4	7
+Thread 2	5 6	11
+Thread 3	7 8	15
+
+Final:
+
+3 + 7 + 11 + 15 = 36
+What is OpenMP?
+OpenMP = Open Multi-Processing
+
+OpenMP is an API used for:
+
+parallel programming
+multi-threading
+shared memory processing
+
+It allows a program to run multiple parts simultaneously using CPU cores.
+
+The lab manual defines OpenMP as an API used for explicit multi-threaded shared-memory parallelism.
+
+Why OpenMP is used?
+
+OpenMP is used to:
+
+improve performance
+reduce execution time
+utilize multiple CPU cores
+process large data faster
+Purpose of OpenMP
+
+Normally:
+
+one CPU core executes program sequentially
+
+With OpenMP:
+
+many threads execute simultaneously
+
+This increases speed.
+
+Real-life Analogy
+
+Suppose:
+You have 100 papers to check.
+
+Without OpenMP
+
+One teacher checks all papers.
+
+With OpenMP
+
+4 teachers divide papers and check together.
+
+Work completes faster.
+
+That is parallel processing.
+
+What is Parallel Processing?
+
+Parallel processing means:
+
+Multiple tasks execute at same time using multiple processors/threads.
+
+Shared Memory Concept
+
+OpenMP works on:
+
+Shared Memory Architecture
+
+Meaning:
+
+all threads share same memory
+threads can access common variables
+
+Example:
+
+total_sum
+
+is shared among threads.
+
+Fork-Join Model
+
+OpenMP uses:
+
+Fork-Join Execution
+Fork
+
+Main thread creates multiple threads.
+
+Join
+
+After work completes, threads merge back.
+
+The lab manual explains OpenMP follows the fork-join model of execution.
+
+2) Explanation of Code
+Header Files
+#include <stdio.h>
+#include <omp.h>
+stdio.h
+
+Used for:
+
+printf()
+omp.h
+
+Contains OpenMP functions like:
+
+omp_get_thread_num()
+omp_get_num_threads()
+Main Function
+int main()
+
+Program execution starts here.
+
+Array Declaration
+int arr[8] = {1,2,3,4,5,6,7,8};
+
+Stores array elements.
+
+Variables
+int n = 8;
+
+Number of elements.
+
+int total_sum = 0;
+
+Stores final result.
+
+OpenMP Parallel Region
+#pragma omp parallel
+Most Important Statement
+
+This tells compiler:
+
+"Execute following block using multiple threads."
+
+What happens internally?
+
+Suppose 4 cores exist.
+
+OpenMP creates:
+
+Thread 0
+Thread 1
+Thread 2
+Thread 3
+
+Each thread executes same block independently.
+
+Local Variables
+int local_sum = 0;
+
+Stores partial sum of each thread.
+
+Each thread has its own local_sum.
+
+Thread ID
+int id = omp_get_thread_num();
+
+Returns thread number.
+
+Example:
+
+0,1,2,3
+Number of Threads
+int num_threads = omp_get_num_threads();
+
+Returns total threads created.
+
+Chunk Calculation
+int chunk = n / num_threads;
+
+Divides work equally among threads.
+
+Example:
+
+8 elements / 4 threads = 2 elements each
+Starting Index
+int start = id * chunk;
+
+Calculates starting position for each thread.
+
+Ending Index
+if(id == num_threads - 1)
+    end = n;
+else
+    end = start + chunk;
+
+Last thread handles remaining elements.
+
+This prevents missing elements.
+
+Partial Sum Calculation
+for(int i = start; i < end; i++) {
+    local_sum += arr[i];
+}
+
+Each thread calculates sum of its assigned elements.
+
+Display Intermediate Sum
+printf("Thread %d calculated partial sum = %d\n", id, local_sum);
+
+Shows:
+
+thread number
+partial sum
+Critical Section
+#pragma omp critical
+Very Important Viva Point
+
+Critical section allows:
+
+only one thread at a time.
+
+Why needed?
+
+Without critical:
+multiple threads may update:
+
+total_sum
+
+simultaneously.
+
+This causes:
+
+Race Condition
+
+Wrong output may occur.
+
+Updating Final Sum
+total_sum += local_sum;
+
+Adds thread’s partial sum into final total.
+
+Final Output
+printf("Final Total Sum = %d\n", total_sum);
+
+Displays final sum.
+
+Example Execution
+
+Suppose:
+
+4 threads
+Thread 0
+1 + 2 = 3
+Thread 1
+3 + 4 = 7
+Thread 2
+5 + 6 = 11
+Thread 3
+7 + 8 = 15
+Final Sum
+3 + 7 + 11 + 15 = 36
+Important OpenMP Terms
+Term	Meaning
+OpenMP	Parallel programming API
+Thread	Small execution unit
+Parallel Region	Code executed by multiple threads
+Shared Memory	Common memory access
+Critical Section	Only one thread executes at a time
+Race Condition	Multiple threads modifying same data
+Fork-Join	Thread creation and merging
+Real-life Applications of OpenMP
+1. Scientific Computing
+
+Large mathematical calculations.
+
+2. Weather Forecasting
+
+Processes huge climate data.
+
+3. Image Processing
+
+Parallel pixel operations.
+
+4. AI and Machine Learning
+
+Large matrix calculations.
+
+5. Video Rendering
+
+Multiple frames processed simultaneously.
+
+6. Banking Analytics
+
+Parallel transaction analysis.
+
+7. Simulation Systems
+
+Traffic simulation, aircraft simulation.
+
+8. Big Data Processing
+
+Handling huge datasets faster.
+
+Why OpenMP is Better?
+Without OpenMP	With OpenMP
+Sequential execution	Parallel execution
+Slow	Faster
+Single core	Multiple cores
+High execution time	Reduced execution time
+Viva Questions and Answers
+Q1) What is OpenMP?
+Answer:
+
+OpenMP is an API used for parallel programming using multiple threads in shared memory systems.
+
+Q2) Why do we use OpenMP?
+Answer:
+
+To improve performance and reduce execution time using multiple CPU cores.
+
+Q3) What does #pragma omp parallel do?
+Answer:
+
+It creates multiple threads and executes the code block in parallel.
+
+Q4) What is a thread?
+Answer:
+
+A thread is the smallest execution unit of a process.
+
+Q5) What is a critical section?
+Answer:
+
+A critical section allows only one thread at a time to access shared data.
+
+Q6) Why is #pragma omp critical used?
+Answer:
+
+To prevent race conditions while updating shared variables like total_sum.
+
+Q7) What is race condition?
+Answer:
+
+Race condition occurs when multiple threads modify shared data simultaneously causing incorrect results.
+
+Q8) What is shared memory?
+Answer:
+
+A memory area accessible by all threads.
+
+Q9) What is fork-join model?
+Answer:
+
+Fork creates multiple threads and join merges them back after execution.
+
+Q10) What happens if critical section is removed?
+Answer:
+
+Final sum may become incorrect due to simultaneous updates by threads.
+
+Compilation Command
+gcc -fopenmp SUM.c -o sum
+Execution Command
+./sum
+Short Conclusion for Viva
+
+This program demonstrates parallel processing using OpenMP where array elements are distributed among multiple threads. Each thread computes a partial sum, and all partial sums are combined to produce the final result efficiently using shared memory parallelism.

@@ -3,3 +3,488 @@ Problem Statement : Implement Berkeley algorithm for clock synchronization.
 Compile Server and Client
 run Server
 Run Client in three different terminals
+
+
+
+1) What this assignment is about?
+
+This assignment implements the Berkeley Clock Synchronization Algorithm in a distributed system.
+
+The goal is:
+
+synchronize clocks of multiple systems
+make all client systems maintain nearly same time
+
+In distributed systems, every computer has its own clock, and clocks may become different due to:
+
+network delay
+hardware differences
+clock drift
+
+Berkeley Algorithm synchronizes all clocks by calculating an average time.
+
+The lab manual explains Berkeley Algorithm is a clock synchronization technique used in distributed systems where a master system calculates average time and synchronizes all client clocks.
+
+What problem does this solve?
+
+Suppose:
+
+Server time = 10:00:05
+Client1 time = 10:00:10
+Client2 time = 09:59:58
+
+Different times may cause:
+
+incorrect transaction order
+synchronization problems
+logging issues
+
+Berkeley Algorithm solves this by making all systems agree on one common time.
+
+What is Berkeley Algorithm?
+Definition
+
+Berkeley Algorithm is a clock synchronization algorithm used in distributed systems where:
+
+one machine acts as master/server
+other machines act as clients/slaves
+master collects time from all clients
+average time is calculated
+time adjustments are sent to all clients
+Main Idea
+
+Instead of using internet time:
+
+All systems agree on average time
+Real-life Analogy
+
+Suppose:
+5 friends have different watch times.
+
+One friend:
+
+asks everyone's time
+calculates average
+tells everyone how much to adjust
+
+Now all watches show nearly same time.
+
+That is Berkeley Algorithm.
+
+Components in Berkeley Algorithm
+Component	Role
+Server/Master	Collects times
+Clients	Send local times
+Average Time	Common synchronized time
+Adjustment	Difference sent to clients
+Real-life Applications in Distributed Systems
+1. Banking Systems
+
+All transaction servers need same time.
+
+Example:
+
+ATM transactions
+2. Distributed Databases
+
+Time synchronization required for:
+
+data consistency
+replication
+logs
+3. Airline Reservation Systems
+
+All servers must maintain same time for ticket booking.
+
+4. Cloud Computing Systems
+
+Multiple servers synchronize logs and requests.
+
+5. Multiplayer Gaming
+
+Game servers need synchronized timing.
+
+6. Stock Trading Systems
+
+Milliseconds matter in transactions.
+
+7. Distributed File Systems
+
+File timestamps must match across systems.
+
+Important Theory Points
+Why clock synchronization is needed?
+
+Without synchronization:
+
+events occur in wrong order
+distributed coordination fails
+logs become inconsistent
+What is Clock Drift?
+
+Clock drift means:
+
+clocks run at slightly different speeds over time.
+
+Berkeley Algorithm Characteristics
+Feature	Meaning
+Centralized	One master controls synchronization
+Average-based	Uses average time
+No UTC required	Internal synchronization
+Fault Tolerant	Can ignore faulty clocks
+Step-by-step Working of Berkeley Algorithm
+Step 1
+
+Server acts as master.
+
+Step 2
+
+Clients send their local times.
+
+Step 3
+
+Server calculates average time.
+
+Step 4
+
+Server calculates adjustment:
+
+Adjustment = Average Time - Client Time
+Step 5
+
+Adjustment sent to clients.
+
+Step 6
+
+Clients update clocks.
+
+Final Result
+
+All systems show nearly same time.
+
+2) Explanation of Server.java
+Imports
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.text.SimpleDateFormat;
+Purpose
+Package	Use
+java.io	Input/output streams
+java.net	Socket programming
+java.util	Lists and Date
+SimpleDateFormat	Time formatting
+Main Method
+public static void main(String[] args)
+
+Program execution starts here.
+
+Create Server Socket
+ServerSocket serverSocket = new ServerSocket(5000);
+Purpose
+
+Starts server on port:
+
+5000
+
+Server waits for client connections.
+
+Print Message
+System.out.println("Server started...");
+
+Displays server startup message.
+
+Store Clients
+List<Socket> clients = new ArrayList<>();
+
+Stores connected client sockets.
+
+Store Times
+List<Long> times = new ArrayList<>();
+
+Stores client clock times.
+
+Time Formatter
+SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
+Formats time in:
+
+hours:minutes:seconds
+Accept Clients
+for(int i = 0; i < 3; i++)
+
+Accepts:
+
+3 clients
+Accept Connection
+Socket socket = serverSocket.accept();
+
+Waits until client connects.
+
+Store Socket
+clients.add(socket);
+
+Stores connected client.
+
+Receive Client Time
+DataInputStream in = new DataInputStream(s.getInputStream());
+
+Receives data from client.
+
+Read Time
+long clientTime = in.readLong();
+
+Reads client clock value.
+
+Store Time
+times.add(clientTime);
+
+Stores received time.
+
+Print Client Time
+sdf.format(new Date(clientTime))
+
+Converts milliseconds into readable time.
+
+Server Time
+long serverTime = System.currentTimeMillis();
+
+Gets current server clock time.
+
+Add Server Time
+times.add(serverTime);
+
+Server time also participates in averaging.
+
+Calculate Sum
+for(long t : times) sum += t;
+
+Adds all times.
+
+Calculate Average
+long avg = sum / times.size();
+
+Finds average clock time.
+
+Send Adjustment
+long diff = avg - times.get(i);
+
+Calculates:
+
+Adjustment = Average - Client Time
+Send Adjustment to Client
+out.writeLong(diff);
+
+Sends time correction.
+
+Close Server
+serverSocket.close();
+
+Stops server.
+
+3) Explanation of Client.java
+Connect to Server
+Socket socket = new Socket("localhost", 5000);
+
+Connects client to server.
+
+Output Stream
+DataOutputStream out
+
+Sends data to server.
+
+Input Stream
+DataInputStream in
+
+Receives data from server.
+
+Generate Local Time
+long localTime = System.currentTimeMillis()
+
+Gets client clock time.
+
+Random Offset
+Math.random() * 10000
+
+Adds random difference to simulate unsynchronized clocks.
+
+Print Local Time
+Client local time
+
+Displays client’s current clock.
+
+Send Time to Server
+out.writeLong(localTime);
+
+Sends local clock to server.
+
+Receive Adjustment
+long adjustment = in.readLong();
+
+Receives correction value.
+
+Adjust Clock
+long newTime = localTime + adjustment;
+
+Synchronizes client clock.
+
+Print Adjusted Time
+Adjusted time
+
+Displays synchronized time.
+
+Overall Execution Flow
+Step 1
+
+Start server.
+
+Step 2
+
+Clients connect.
+
+Step 3
+
+Clients send local times.
+
+Step 4
+
+Server calculates average.
+
+Step 5
+
+Server sends adjustments.
+
+Step 6
+
+Clients update clocks.
+
+Communication Flow
+Client1 ----\
+Client2 ----- > Server calculates average
+Client3 ----/
+
+Server → Sends adjustments → Clients
+Important Keywords for Viva
+Keyword	Meaning
+ServerSocket	Waits for client connections
+Socket	Communication endpoint
+DataInputStream	Reads data
+DataOutputStream	Sends data
+currentTimeMillis()	Current system time
+Average Time	Common synchronized time
+Adjustment	Clock correction
+Clock Drift	Time difference between systems
+Viva Questions and Answers
+Q1) What is Berkeley Algorithm?
+Answer:
+
+Berkeley Algorithm is a clock synchronization algorithm where a master system collects times from clients, calculates average time, and sends adjustments to synchronize clocks.
+
+Q2) Why is clock synchronization needed?
+Answer:
+
+Clock synchronization is needed to maintain consistency and proper event ordering in distributed systems.
+
+Q3) What is clock drift?
+Answer:
+
+Clock drift means clocks of different systems gradually become different over time.
+
+Q4) Why does server calculate average time?
+Answer:
+
+Average time helps all systems synchronize to a common time fairly.
+
+Q5) Why is server called master?
+Answer:
+
+Because it controls synchronization and sends adjustments to clients.
+
+Q6) What is the role of clients?
+Answer:
+
+Clients send their local time and adjust clocks based on server instructions.
+
+Q7) Why is currentTimeMillis() used?
+Answer:
+
+To get current system time in milliseconds.
+
+Q8) What does ServerSocket do?
+Answer:
+
+It waits for incoming client connections.
+
+Q9) What is socket programming?
+Answer:
+
+Socket programming enables communication between systems over a network.
+
+Q10) What happens if one client has wrong time?
+Answer:
+
+Server can ignore abnormal times or still calculate average using remaining systems.
+
+Advantages of Berkeley Algorithm
+Advantage	Meaning
+Simple	Easy to implement
+Efficient	Synchronizes multiple systems
+No UTC required	Internal synchronization
+Centralized control	Easier management
+Limitations
+Limitation	Meaning
+Master failure	Synchronization stops
+Network delay	May affect accuracy
+Short Conclusion for Viva
+
+This assignment demonstrates Berkeley Clock Synchronization Algorithm in a distributed system. The server collects clock times from clients, calculates an average time, and sends adjustments so all systems synchronize to nearly the same clock time.
+
+1) Banking Systems
+Where used?
+ATM networks
+transaction servers
+payment gateways
+Why synchronization needed?
+
+All banking transactions must have correct timestamps.
+
+Example:
+
+Money transfer
+ATM withdrawal
+UPI transaction
+
+If clocks differ:
+
+transactions may appear in wrong order
+duplicate transaction problems may occur
+
+5) Multiplayer Online Games
+Why synchronization needed?
+
+Game servers must keep:
+
+player actions synchronized
+event timings consistent
+
+Example:
+
+PUBG
+Free Fire
+Valorant
+
+Without synchronization:
+
+lag issues
+unfair gameplay
+incorrect event ordering
+6) Stock Market / Trading Systems
+Why needed?
+
+Even milliseconds matter in:
+
+stock buying
+selling
+order execution
+
+All trading servers need synchronized time.

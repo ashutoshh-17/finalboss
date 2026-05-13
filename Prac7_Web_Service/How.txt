@@ -4,3 +4,406 @@ the web service.
 Compile server and client
 Run server and client
 also check on browser -> http://localhost:8000/add?a=20&b=30
+
+
+
+
+1) What this assignment is about?
+This assignment demonstrates:
+Web Service Communication in Distributed Systems
+The program creates:
+
+
+a simple web service (server)
+
+
+a client application that consumes the web service
+
+
+The server performs:
+Addition Operation
+The client sends request:
+a=10 & b=5
+Server processes request and returns:
+Sum = 15
+The lab manual explains web services are used for communication between distributed applications over a network. 
+
+What is a Web Service?
+Definition
+A web service is:
+
+A software service that allows applications to communicate over a network using HTTP.
+
+
+Simple Explanation
+Suppose:
+
+
+client needs some data/functionality
+
+
+server provides service through URL
+
+
+Client sends request → Server processes → Response returned
+
+Real-life Analogy
+Suppose:
+You order food using Swiggy.
+You:
+send request
+Restaurant:
+processes order
+Delivery:
+response returned
+Similarly:
+Client → RequestServer → ProcessServer → Response
+
+What this program does?
+Server Side
+
+
+creates HTTP web service
+
+
+listens on port 8000
+
+
+accepts numbers from URL
+
+
+calculates sum
+
+
+returns response
+
+
+
+Client Side
+
+
+sends HTTP GET request
+
+
+receives response
+
+
+displays result
+
+
+
+Real-life Applications
+1. Banking Applications
+Mobile app requests:
+
+
+balance
+
+
+transactions
+
+
+fund transfer
+
+
+through web services.
+
+2. Weather Applications
+Client requests:
+weather data
+Server returns weather details.
+
+3. E-commerce Applications
+Apps communicate with:
+
+
+payment service
+
+
+product service
+
+
+order service
+
+
+using APIs/web services.
+
+4. Google Maps
+Client requests location data.
+Server returns maps and directions.
+
+5. Social Media Applications
+Apps communicate with backend servers using web services.
+
+6. Online Food Delivery
+Frontend app communicates with:
+
+
+restaurant server
+
+
+payment server
+
+
+delivery tracking
+
+
+
+Web Service Architecture
+Client   ↓ HTTP RequestWeb Server   ↓ Process RequestResponse Returned
+
+What protocol is used?
+HTTP
+HTTP = HyperText Transfer Protocol
+Used for communication between:
+
+
+client
+
+
+web server
+
+
+
+Request Used in this Program
+GET Request
+
+URL Used
+http://localhost:8000/add?a=10&b=5
+
+URL Breakdown
+PartMeaninglocalhostSame machine8000Port number/addWeb service patha=10Parameter 1b=5Parameter 2
+
+2) Server.java Explanation
+Imports
+import com.sun.net.httpserver.HttpServer;
+Used to create HTTP server.
+
+HttpHandler
+Handles client requests.
+
+HttpExchange
+Contains request and response information.
+
+InetSocketAddress
+Defines IP address and port.
+
+Main Method
+public static void main(String[] args)
+Program execution starts here.
+
+Create HTTP Server
+HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+Creates web server on:
+Port 8000
+
+Create Context
+server.createContext("/add", new MyHandler());
+Creates endpoint:
+/add
+All requests to:
+http://localhost:8000/add
+handled by:
+MyHandler
+
+Executor
+server.setExecutor(null);
+Uses default thread executor.
+
+Start Server
+server.start();
+Starts HTTP server.
+
+MyHandler Class
+static class MyHandler implements HttpHandler
+Handles incoming requests.
+
+handle() Method
+public void handle(HttpExchange t)
+Automatically called when client sends request.
+
+Read Query Parameters
+String query = t.getRequestURI().getQuery();
+Reads:
+a=10&b=5
+
+Split Parameters
+query.split("&");
+Separates:
+a=10b=5
+
+Extract Numbers
+Integer.parseInt(...)
+Converts string into integer.
+
+Perform Addition
+int result = a + b;
+Calculates sum.
+
+Prepare Response
+String response = "Sum = " + result;
+Creates response string.
+
+Send HTTP Status
+t.sendResponseHeaders(200, response.length());
+200 means:
+Success
+
+Send Response Data
+OutputStream os = t.getResponseBody();
+Gets response stream.
+
+Write Response
+os.write(response.getBytes());
+Sends response to client.
+
+Close Stream
+os.close();
+Closes connection.
+
+3) Client.java Explanation
+Imports
+import java.net.*;
+Used for URL and HTTP communication.
+
+Create URL
+URL url = new URL(...)
+Defines web service URL.
+
+Open Connection
+HttpURLConnection con =(HttpURLConnection) url.openConnection();
+Creates HTTP connection with server.
+
+Set Request Method
+con.setRequestMethod("GET");
+Uses HTTP GET request.
+
+Input Stream
+BufferedReader in
+Reads server response.
+
+Read Response
+while ((inputLine = in.readLine()) != null)
+Reads response line-by-line.
+
+Print Response
+System.out.println(...)
+Displays:
+Sum = 15
+
+Close Reader
+in.close();
+Closes connection.
+
+Overall Execution Flow
+Step 1
+Start server.
+
+Step 2
+Client sends HTTP request:
+GET /add?a=10&b=5
+
+Step 3
+Server receives request.
+
+Step 4
+Server extracts parameters.
+
+Step 5
+Server calculates sum.
+
+Step 6
+Server sends response.
+
+Step 7
+Client displays output.
+
+Communication Flow
+Client   ↓ GET RequestWeb Server   ↓ Addition LogicResponse Returned
+
+Important Keywords
+KeywordMeaningWeb ServiceService over networkHTTPCommunication protocolGETRequest methodURLWeb service addressHttpServerCreates serverHttpHandlerHandles requestsHttpExchangeRequest-response objectHttpURLConnectionClient-server connectionPortCommunication endpoint
+
+Types of Web Services
+The manual mentions:
+
+
+SOAP Web Services
+
+
+RESTful Web Services 
+
+
+
+Which type is used here?
+This example is similar to:
+REST-style Web Service
+because:
+
+
+uses HTTP
+
+
+uses URL parameters
+
+
+simple request-response model
+
+
+
+Advantages of Web Services
+AdvantageMeaningPlatform independentAny language can communicateDistributed communicationWorks over networkReusableSame service used by many clientsScalableMultiple clients supported
+
+Viva Questions and Answers
+Q1) What is a web service?
+Answer:
+A web service is a software service that enables communication between applications over a network using protocols like HTTP.
+
+Q2) What is HTTP?
+Answer:
+HTTP stands for HyperText Transfer Protocol and is used for communication between clients and web servers.
+
+Q3) What is GET request?
+Answer:
+GET request is used to retrieve data from the server through URL parameters.
+
+Q4) What does this program do?
+Answer:
+The client sends numbers to the web server, and the server performs addition and returns the result.
+
+Q5) What is URL?
+Answer:
+URL is the address used to access a web service or resource.
+
+Q6) What is the role of HttpHandler?
+Answer:
+HttpHandler processes incoming HTTP requests on the server.
+
+Q7) What does status code 200 mean?
+Answer:
+HTTP status code 200 means request processed successfully.
+
+Q8) Difference between client and server?
+Answer:
+Client requests services, while server provides services.
+
+Q9) What is HttpURLConnection?
+Answer:
+It establishes HTTP communication between client and server.
+
+Q10) Why port 8000 is used?
+Answer:
+Port 8000 is used as communication endpoint for the web server.
+
+Q11) What are query parameters?
+Answer:
+Query parameters are values passed in URL like:
+?a=10&b=5
+
+Q12) Real-life examples of web services?
+Answer:
+Banking apps, weather apps, Google Maps, online shopping, food delivery systems, and social media platforms.
+
+Short Viva Conclusion
+
+This assignment demonstrates a distributed web service application where a client communicates with a server using HTTP requests. The server processes addition requests and returns responses through a simple REST-style web service.

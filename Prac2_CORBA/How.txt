@@ -8,3 +8,463 @@ Compile all java files -> javac *.java CalculatorApp/*.java
 Open three cmd -> tnameserv -ORBInitialPort 1050
                   java Server -ORBInitialPort 1050 -ORBInitialHost localhost
                   java Client -ORBInitialPort 1050 -ORBInitialHost localhost
+
+
+
+
+1) What this program is about?
+
+This program implements a distributed calculator application using CORBA.
+
+The client sends arithmetic requests like:
+
+Addition
+Subtraction
+Multiplication
+Division
+
+to a remote server.
+
+The server processes the operation and returns the result to the client.
+
+So even though the calculator methods exist on another machine/server, the client can use them as if they are local methods.
+
+This practical belongs to CORBA-based distributed communication.
+
+What is CORBA?
+CORBA = Common Object Request Broker Architecture
+
+CORBA is a distributed object technology used for communication between applications running on:
+
+different machines
+different operating systems
+different programming languages
+Simple Definition
+
+CORBA allows:
+
+Client object ↔ Remote server object
+
+to communicate over network.
+
+Why CORBA is used?
+
+CORBA is used because:
+
+distributed systems contain different technologies
+systems may be written in Java, C++, Python etc.
+CORBA provides communication between them
+Main Goal of CORBA
+
+"Make distributed objects communicate transparently."
+
+Client does not need to know:
+
+where server exists
+which OS server uses
+which language server uses
+
+CORBA handles everything internally.
+
+Real-life Example
+
+Suppose:
+
+Banking frontend written in Java
+Transaction engine written in C++
+Database service written in Python
+
+CORBA allows all of them to communicate.
+
+What is Object Brokering?
+Broker Meaning
+
+A broker acts like a mediator.
+
+In CORBA:
+
+ORB acts as broker
+
+ORB = Object Request Broker
+
+It transfers requests between:
+
+Client ↔ Server Object
+Real-life analogy
+
+Think of ORB like:
+
+Swiggy/Zomato Delivery Partner
+
+You:
+
+place order
+
+Delivery partner:
+
+carries request to restaurant
+brings response back
+
+Similarly ORB:
+
+sends request to server
+gets result back to client
+What is ORB?
+ORB = Object Request Broker
+
+ORB is the core component of CORBA.
+
+It:
+
+locates remote objects
+handles communication
+transfers requests/responses
+CORBA Architecture
+Client
+   ↓
+ORB
+   ↓
+Remote Object
+   ↓
+Server
+Important CORBA Components
+Component	Meaning
+ORB	Communication manager
+IDL	Interface Definition Language
+Stub	Client-side proxy
+Skeleton	Server-side proxy
+Naming Service	Stores object references
+Servant	Actual server implementation
+
+The lab manual explains that CORBA uses ORB, IDL, stubs, and skeletons for distributed communication.
+
+2) Real-life Applications of CORBA
+1. Banking Systems
+ATM ↔ Banking server
+Different systems communicate securely
+2. Airline Reservation Systems
+Booking server
+Payment server
+Seat allocation server
+
+All communicate using distributed objects.
+
+3. Telecom Systems
+
+Used for:
+
+call routing
+billing
+distributed switching systems
+4. Hospital Management Systems
+
+Different departments communicate remotely.
+
+5. Military & Aerospace Systems
+
+CORBA is used because it is:
+
+scalable
+distributed
+language-independent
+3) Explanation of Each File
+A) Calculator.idl
+module CalculatorApp {
+    interface Calculator {
+Purpose
+
+Defines remote methods available to client.
+
+This is the contract between client and server.
+
+What is IDL?
+IDL = Interface Definition Language
+
+Used to define:
+
+remote methods
+parameters
+return types
+
+IDL is language independent.
+
+Why IDL is used?
+
+Because CORBA supports multiple languages.
+
+IDL acts as common communication format.
+
+Methods Defined
+float add(in float a, in float b);
+Meaning:
+takes two float inputs
+returns float result
+Keyword Meanings
+Keyword	Meaning
+module	Package/namespace
+interface	Remote methods declaration
+in	Input parameter
+float	Data type
+Viva Line
+
+IDL defines the interface for remote CORBA objects in a language-independent manner.
+
+B) CalculatorImpl.java
+public class CalculatorImpl extends CalculatorPOA
+Purpose
+
+Implements actual calculator logic.
+
+This is actual server object implementation.
+
+Important Word
+CalculatorPOA
+
+Generated automatically from IDL.
+
+POA = Portable Object Adapter
+
+It connects CORBA object with server implementation.
+
+Methods
+add()
+return a + b;
+
+Performs addition.
+
+sub()
+
+Performs subtraction.
+
+mul()
+
+Performs multiplication.
+
+div()
+
+Performs division.
+
+Viva Point
+
+CalculatorImpl contains business logic of calculator operations.
+
+C) Server.java
+Purpose
+
+Starts CORBA server and registers remote object.
+
+Step-by-step Explanation
+Step 1: Initialize ORB
+ORB orb = ORB.init(args, null);
+
+Starts CORBA runtime environment.
+
+Step 2: Get RootPOA
+POA rootpoa = POAHelper.narrow(...)
+
+Gets reference to POA.
+
+POA manages CORBA objects.
+
+Step 3: Activate POA Manager
+rootpoa.the_POAManager().activate();
+
+Starts object request handling.
+
+Step 4: Create Servant
+CalculatorImpl calcImpl = new CalculatorImpl();
+
+Creates actual calculator object.
+
+Step 5: Convert to CORBA Object
+servant_to_reference(calcImpl)
+
+Converts Java object into CORBA object.
+
+Step 6: Naming Service
+resolve_initial_references("NameService")
+
+Gets naming service reference.
+
+Step 7: Bind Object
+ncRef.rebind(path, href);
+
+Registers object with name:
+
+Calculator
+Step 8: Wait for Requests
+orb.run();
+
+Server continuously waits for client requests.
+
+Important Terms
+Term	Meaning
+ORB	Object communication manager
+POA	Object adapter
+Servant	Actual implementation object
+Naming Service	Stores object names
+rebind()	Register object
+D) Client.java
+Purpose
+
+Client accesses remote calculator methods.
+
+Step-by-step
+Step 1: Initialize ORB
+ORB orb = ORB.init(args, null);
+
+Starts CORBA communication.
+
+Step 2: Get Naming Service
+resolve_initial_references("NameService")
+
+Connects to naming server.
+
+Step 3: Find Calculator Object
+resolve_str("Calculator")
+
+Searches remote calculator object.
+
+Step 4: Narrowing
+CalculatorHelper.narrow(...)
+
+Converts generic CORBA object into Calculator object.
+
+What is Narrowing?
+
+CORBA initially returns generic object reference.
+
+narrow() converts it into specific type.
+
+Step 5: Remote Method Calls
+calc.add(10,5)
+
+Client remotely invokes server method.
+
+Output
+Addition: 15
+Subtraction: 5
+Multiplication: 50
+Division: 2
+Overall Execution Flow
+Step 1
+
+Compile IDL:
+
+idlj -fall Calculator.idl
+
+Generates:
+
+stubs
+skeletons
+helper classes
+Step 2
+
+Start Naming Service:
+
+orbd -ORBInitialPort 1050
+Step 3
+
+Run Server:
+
+java Server -ORBInitialPort 1050
+Step 4
+
+Run Client:
+
+java Client -ORBInitialPort 1050
+Communication Flow
+Client
+   ↓
+ORB
+   ↓
+Naming Service
+   ↓
+Calculator Object
+   ↓
+Server Executes Method
+   ↓
+Result Returned
+Important Terms External May Ask
+Word	Meaning
+CORBA	Distributed object architecture
+ORB	Communication broker
+IDL	Interface definition language
+POA	Portable Object Adapter
+Stub	Client-side proxy
+Skeleton	Server-side proxy
+Naming Service	Object directory
+Servant	Actual implementation
+Difference Between RMI and CORBA
+RMI	CORBA
+Java only	Multi-language
+Simpler	More powerful
+Uses Remote Interface	Uses IDL
+Java-specific	Platform independent
+Viva Questions and Answers
+Q1) What is CORBA?
+Answer:
+
+CORBA is a distributed object architecture that enables communication between objects running on different systems and languages.
+
+Q2) What is ORB?
+Answer:
+
+ORB stands for Object Request Broker.
+It manages communication between client and server objects.
+
+Q3) Why is IDL used?
+Answer:
+
+IDL provides language-independent interface definitions so different programming languages can communicate.
+
+Q4) What is Naming Service in CORBA?
+Answer:
+
+Naming Service stores object references and allows clients to locate remote objects using names.
+
+Q5) What is POA?
+Answer:
+
+POA stands for Portable Object Adapter.
+It connects servant objects with ORB and manages remote object requests.
+
+Q6) What is narrowing in CORBA?
+Answer:
+
+Narrowing converts a generic CORBA object reference into a specific object type.
+
+Q7) What is a servant in CORBA?
+Answer:
+
+Servant is the actual implementation of remote methods on server side.
+
+Q8) What happens if server is not running?
+Answer:
+
+Client cannot locate remote object and communication fails.
+
+Where else can this code concept be used?
+1. Distributed Banking System
+
+Remote account operations.
+
+2. Online Shopping Backend
+
+Inventory service and payment service communication.
+
+3. Distributed Medical Systems
+
+Patient record sharing.
+
+4. University ERP
+
+Attendance, marks, fees handled remotely.
+
+5. Stock Trading Systems
+
+Remote transaction processing.
+
+Short Conclusion for Viva
+
+This program demonstrates distributed communication using CORBA where a client remotely invokes calculator methods on a server object. CORBA uses ORB for object brokering and IDL for language-independent communication between distributed systems.etween distributed systems.

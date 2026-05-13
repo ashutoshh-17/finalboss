@@ -5,3 +5,398 @@ Open 3 terminals ->
 java Process 1 5001 5002
 java Process 2 5002 5003
 java Process 3 5003 5001
+
+
+1) What this assignment is about?
+
+This assignment implements the Token Ring Algorithm in a distributed system.
+
+The goal is:
+
+ensure mutual exclusion
+allow only one process at a time to enter the critical section
+
+Processes are connected in a logical ring, and a special message called TOKEN circulates among them.
+
+Only the process holding the token can access the critical section.
+
+The lab manual explains Token Ring Algorithm ensures mutual exclusion using a circulating token in a logical ring structure.
+
+What problem does this solve?
+
+In distributed systems:
+
+many processes may try accessing shared resources simultaneously
+
+Example:
+
+printer
+database
+shared file
+transaction system
+
+Without control:
+
+data corruption
+race conditions
+conflicts occur
+
+Token Ring Algorithm solves this problem.
+
+What is Mutual Exclusion?
+Definition
+
+Mutual exclusion means:
+
+Only one process can enter critical section at a time.
+
+What is Critical Section?
+
+Critical section is:
+
+Part of program where shared resource is accessed.
+
+Example:
+
+writing to file
+updating database
+using printer
+What is Token Ring Algorithm?
+Definition
+
+Token Ring is a distributed mutual exclusion algorithm where:
+
+processes form a logical ring
+one unique token circulates continuously
+only token holder can enter critical section
+Main Idea
+NO TOKEN → Cannot enter CS
+HAS TOKEN → Can enter CS
+Real-life Analogy
+
+Suppose:
+5 students share one microphone.
+
+Rule:
+
+only student holding microphone can speak
+
+Microphone passes circularly.
+
+Here:
+
+Microphone = TOKEN
+
+This avoids everyone speaking together.
+
+Token Ring Working
+Step 1
+
+Processes arranged in ring.
+
+Example:
+
+P1 → P2 → P3 → P4 → P1
+Step 2
+
+One token circulates.
+
+Step 3
+
+Process receives token.
+
+Step 4
+
+Process enters critical section.
+
+Step 5
+
+After completion, token passed to next process.
+
+Why Token Ring is used?
+
+Used because:
+
+guarantees mutual exclusion
+avoids deadlock
+avoids starvation
+fair access to resources
+Real-life Applications in Distributed Systems
+1. Printer Sharing Systems
+
+Only one computer can use shared printer at a time.
+
+Token controls access.
+
+2. Distributed Databases
+
+Only one process updates data at a time.
+
+3. Banking Systems
+
+Prevents simultaneous modification of account records.
+
+4. Network Communication Systems
+
+Token passing used in old LAN token ring networks.
+
+5. Distributed File Systems
+
+Only one node modifies file at a time.
+
+6. Industrial Automation
+
+Machines coordinate access to shared equipment.
+
+7. Railway Reservation Systems
+
+Prevents double booking.
+
+8. Multiplayer Game Servers
+
+Controls synchronized access to shared game state.
+
+2) How Token Ring is implemented in this code?
+Ring Structure
+
+Each process knows:
+
+its own port
+next process port
+
+Example:
+
+P1 → P2 → P3 → P1
+Token Passing
+
+Message:
+
+"TOKEN"
+
+circulates among processes.
+
+Critical Section
+
+When process receives token:
+
+ENTERING CRITICAL SECTION
+After completion
+
+Process passes token:
+
+PASSING TOKEN
+3) Complete Code Explanation
+Imports
+import java.io.*;
+import java.net.*;
+Purpose
+Package	Use
+java.io	Input/output streams
+java.net	Socket programming
+Main Method
+public static void main(String[] args)
+
+Program starts here.
+
+Process ID
+int id = Integer.parseInt(args[0]);
+
+Stores process number.
+
+Example:
+
+1,2,3
+Ports
+int myPort
+
+Own listening port.
+
+int nextPort
+
+Next process port.
+
+Create Server Socket
+ServerSocket serverSocket = new ServerSocket(myPort);
+
+Process waits for incoming connection.
+
+Display Process Info
+Process listening on port
+
+Shows process startup.
+
+Connect to Next Process
+next = new Socket("localhost", nextPort);
+
+Creates ring connection.
+
+Retry Loop
+while (next == null)
+
+Continuously tries until next process becomes available.
+
+Delay
+Thread.sleep(1000);
+
+Waits 1 second before retrying.
+
+Output Stream
+DataOutputStream out
+
+Used to send token.
+
+Accept Previous Process
+Socket prev = serverSocket.accept();
+
+Accepts connection from previous process.
+
+Input Stream
+DataInputStream in
+
+Receives token.
+
+Start Token
+if (id == 1)
+
+Only Process 1 creates first token.
+
+Delay Before Starting
+Thread.sleep(2000);
+
+Waits for all processes to connect.
+
+Send Initial Token
+out.writeUTF("TOKEN");
+
+Starts token circulation.
+
+Infinite Loop
+while(true)
+
+Processes continuously wait for token.
+
+Receive Token
+String msg = in.readUTF();
+
+Reads incoming message.
+
+Check Token
+if(msg.equals("TOKEN"))
+
+Verifies token received.
+
+Process Receives Token
+RECEIVED TOKEN
+
+Process now owns token.
+
+Enter Critical Section
+ENTERING CRITICAL SECTION
+
+Only current token holder enters CS.
+
+Simulated Work
+Thread.sleep(2000);
+
+Simulates resource usage.
+
+Exit Critical Section
+EXITING CRITICAL SECTION
+
+Resource released.
+
+Pass Token
+out.writeUTF("TOKEN");
+
+Token sent to next process.
+
+Ring Communication Flow
+P1 → P2 → P3 → P1
+
+Token continuously circulates.
+
+Important Keywords
+Keyword	Meaning
+Token	Permission to enter CS
+Ring	Circular process structure
+Critical Section	Shared resource access
+Mutual Exclusion	One process at a time
+ServerSocket	Waits for connections
+Socket	Communication endpoint
+DataInputStream	Receives token
+DataOutputStream	Sends token
+Advantages of Token Ring Algorithm
+Advantage	Meaning
+Fairness	Every process gets token
+No Starvation	Nobody waits forever
+No Deadlock	Single token system
+Ordered Access	Controlled execution
+Limitations
+Limitation	Meaning
+Token loss	System stops
+Slow if many processes	Token travel time increases
+Ring failure	Communication breaks
+Viva Questions and Answers
+Q1) What is Token Ring Algorithm?
+Answer:
+
+Token Ring is a distributed mutual exclusion algorithm where processes form a logical ring and a unique token circulates among them. Only the token holder can enter the critical section.
+
+Q2) What is mutual exclusion?
+Answer:
+
+Mutual exclusion ensures only one process accesses shared resources at a time.
+
+Q3) What is a token?
+Answer:
+
+A token is a special permission message allowing a process to enter the critical section.
+
+Q4) Why is token required?
+Answer:
+
+To prevent multiple processes from entering critical section simultaneously.
+
+Q5) What is critical section?
+Answer:
+
+Critical section is the part of code where shared resources are accessed.
+
+Q6) Why is ring structure used?
+Answer:
+
+Ring structure provides orderly token passing among processes.
+
+Q7) What happens if token is lost?
+Answer:
+
+No process can enter critical section until token is regenerated.
+
+Q8) Why only Process 1 starts token?
+Answer:
+
+To ensure only one token exists initially.
+
+Q9) How does this code achieve mutual exclusion?
+Answer:
+
+Only process holding token enters critical section while others wait.
+
+Q10) What is the role of sockets here?
+Answer:
+
+Sockets provide communication between distributed processes.
+
+Q11) Why is while(true) used?
+Answer:
+
+Processes continuously wait and participate in token passing.
+
+Q12) Why are delays added using Thread.sleep()?
+Answer:
+
+To simulate work and clearly show token movement.
+
+Easy Viva Summary
+
+Token Ring Algorithm uses a circulating token to provide mutual exclusion in distributed systems. Only the process holding the token can access the critical section, ensuring fair and conflict-free resource sharing.
