@@ -1,3 +1,5 @@
+Problem Statement : Implement multi-threaded client/server Process communication using RMI.
+
 Compile Server and Client
 Run rmiregistry on separate cmd
 Run java Server
