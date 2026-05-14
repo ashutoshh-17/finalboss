@@ -12,3 +12,467 @@ For Ring run 3 terminals ->
 java RingProcess 1 6001 6002
 java RingProcess 2 6002 6003
 java RingProcess 3 6003 6001
+
+
+
+
+
+Election Algorithms in Distributed Systems 
+You have implemented two election algorithms: 
+
+
+Bully Algorithm 
+
+
+Ring Election Algorithm 
+
+
+Both are used to elect a Leader/Coordinator in a Distributed System. 
+
+Why Election Algorithms are Needed? 
+In Distributed Systems, many processes/computers work together. 
+Sometimes one special process acts as: 
+
+
+Coordinator 
+
+
+Leader 
+
+
+Master Node 
+
+
+This leader: 
+
+
+Manages tasks 
+
+
+Synchronizes processes 
+
+
+Controls shared resources 
+
+
+If leader crashes: 
+✅ System must elect a new leader automatically. 
+This is solved using: 
+
+
+Bully Algorithm 
+
+
+Ring Algorithm 
+
+
+
+Real Life Example 
+Example: Class Monitor Selection 
+Suppose: 
+
+
+Students have roll numbers. 
+
+
+Highest roll number becomes monitor. 
+
+
+If monitor is absent: 
+
+
+Another student starts election. 
+
+
+Students with higher roll numbers respond. 
+
+
+Highest roll number student becomes new monitor. 
+
+
+This is exactly the Bully Algorithm. 
+
+Difference Between Bully and Ring Algorithm 
+FeatureBully AlgorithmRing AlgorithmStructureAny topologyRing topologyHighest ID winsYesYesMessage passingDirectCircularSpeedFasterSlowerComplexityMoreSimpleFailure handlingGoodModerate 
+
+1. Bully Algorithm – Viva Explanation 
+Aim 
+To implement leader election using Bully Algorithm in Distributed Systems. 
+
+Basic Concept 
+
+
+Every process has unique ID. 
+
+
+Highest ID process becomes leader. 
+
+
+If leader crashes: 
+
+
+Lower process starts election. 
+
+
+Higher processes reply "OK". 
+
+
+Highest alive process becomes coordinator. 
+
+
+
+
+Called "Bully" because: 
+
+Highest ID process “bullies” others and becomes leader. 
+
+
+Real Life Example 
+In company: 
+
+
+Senior-most manager becomes team leader. 
+
+
+If leader absent, next senior manager takes control. 
+
+
+
+Bully Algorithm Flow 
+Suppose processes: 
+P1 P2 P3 P4 P5 
+Leader = P5 
+If P5 crashes: 
+
+
+P2 starts election. 
+
+
+P2 sends ELECTION to P3,P4,P5 
+
+
+P3 and P4 reply OK 
+
+
+P4 starts own election 
+
+
+Eventually highest alive process wins 
+
+
+
+Bully Algorithm Code Explanation 
+Class Declaration 
+public class BullyProcess 
+Represents one process. 
+
+Variables 
+int id;int port;int[] ports;boolean isLeader = false;boolean receivedOK = false; 
+Meaning 
+VariablePurposeidProcess IDportCurrent process portportsAll process portsisLeaderChecks if process is leaderreceivedOKChecks if higher process replied 
+
+Constructor 
+public BullyProcess(int id, int port, int[] ports) 
+Initializes: 
+
+
+Process ID 
+
+
+Port 
+
+
+List of ports 
+
+
+
+start() Method 
+ServerSocket server = new ServerSocket(port); 
+Creates server socket. 
+Each process acts as server. 
+
+new Thread(() -> { 
+Creates listener thread. 
+Purpose: 
+
+
+Continuously listen for incoming messages. 
+
+
+
+Receiving Messages 
+Socket s = server.accept(); 
+Accepts connection. 
+
+BufferedReader in = new BufferedReader(    new InputStreamReader(s.getInputStream())); 
+Reads messages. 
+
+ELECTION Message 
+if (msg.equals("ELECTION")) 
+When process receives election request: 
+Actions: 
+
+
+Reply OK 
+
+
+Start own election 
+
+
+
+Sending OK 
+out.println("OK"); 
+Means: 
+
+“I am alive and have higher priority.” 
+
+
+Start Own Election 
+startElection(); 
+Higher process now competes for leadership. 
+
+OK Message 
+else if (msg.equals("OK")) 
+Indicates: 
+Higher process exists. 
+
+receivedOK = true; 
+Current process stops becoming leader. 
+
+COORDINATOR Message 
+else if (msg.startsWith("COORDINATOR")) 
+Leader announcement message. 
+
+System.out.println("Process " + id + " accepts leader"); 
+All processes accept new leader. 
+
+startElection() Method 
+System.out.println("Process " + id + " starts election"); 
+Election begins. 
+
+Send ELECTION to Higher Processes 
+for (int i = id + 1; i < ports.length; i++) 
+Only higher ID processes contacted. 
+
+sendMessage(ports[i], "ELECTION"); 
+Election request sent. 
+
+Wait for Replies 
+Thread.sleep(2000); 
+Waits for OK response. 
+
+Become Leader 
+if (!receivedOK) 
+No higher process alive. 
+Therefore: 
+✅ Current process becomes leader. 
+
+becomeLeader() Method 
+isLeader = true; 
+Marks itself as coordinator. 
+
+sendMessage(ports[i], "COORDINATOR:" + id); 
+Informs all processes. 
+
+sendMessage() 
+Socket s = new Socket("localhost", port); 
+Connects to another process. 
+
+out.println(msg); 
+Sends message. 
+
+main() 
+int[] ports = {5001,5002,5003,5004,5005}; 
+Defines all processes. 
+
+p.startElection(); 
+Starts election after delay. 
+
+Bully Algorithm Viva Questions 
+1. What is Bully Algorithm? 
+Election algorithm where highest ID alive process becomes coordinator. 
+
+2. Why called Bully? 
+Highest priority process forces itself as leader. 
+
+3. Who starts election? 
+Any process detecting coordinator failure. 
+
+4. What message types are used? 
+
+
+ELECTION 
+
+
+OK 
+
+
+COORDINATOR 
+
+
+
+5. What happens if highest process alive? 
+It becomes leader. 
+
+6. Advantage? 
+Fast election. 
+
+7. Disadvantage? 
+Large number of messages. 
+
+2. Ring Election Algorithm – Viva Explanation 
+Aim 
+To implement Ring Election Algorithm for electing coordinator in distributed systems. 
+
+Basic Concept 
+Processes connected in ring. 
+Election message circulates through ring. 
+Each process adds its ID. 
+Highest ID becomes leader. 
+
+Real Life Example 
+People sitting in circle selecting captain. 
+Each person says their number. 
+Highest number person wins. 
+
+Ring Structure 
+P1 → P2 → P3 → P4 → P1 
+
+Ring Algorithm Flow 
+Step 1 
+P1 starts election. 
+Step 2 
+Election message moves around ring. 
+Step 3 
+Each process adds ID. 
+Step 4 
+When message returns: 
+Highest ID selected. 
+Step 5 
+Leader message circulates. 
+
+Ring Algorithm Code Explanation 
+Variables 
+int id, myPort, nextPort; 
+Stores: 
+
+
+Process ID 
+
+
+Own port 
+
+
+Next process port 
+
+
+
+start() 
+ServerSocket server = new ServerSocket(myPort); 
+Creates server. 
+
+Connect to Next Node 
+next = new Socket("localhost", nextPort); 
+Creates ring connection. 
+
+Input/Output Streams 
+DataOutputStream outDataInputStream in 
+Used for communication. 
+
+Initiator 
+if (id == 1) 
+Process 1 starts election. 
+
+out.writeUTF("ELECTION:" + id); 
+Initial election message. 
+
+Receiving Election Message 
+if (msg.startsWith("ELECTION")) 
+Process receives election. 
+
+Extract IDs 
+String data = msg.split(":")[1]; 
+Gets IDs list. 
+
+Add Own ID 
+if (!list.contains(id)) 
+Adds process ID. 
+
+Election Complete 
+if (list.get(0) == id) 
+Message returned to initiator. 
+
+Select Leader 
+int leader = Collections.max(list); 
+Highest ID chosen. 
+
+Send Leader Message 
+out.writeUTF("LEADER:" + leader); 
+Broadcast leader. 
+
+Leader Phase 
+if (msg.startsWith("LEADER")) 
+Processes accept leader. 
+
+Forward Message 
+out.writeUTF(msg); 
+Leader message continues in ring. 
+
+Ring Algorithm Viva Questions 
+1. What is Ring Election Algorithm? 
+Election algorithm where processes are arranged in ring topology. 
+
+2. How is leader selected? 
+Highest process ID wins. 
+
+3. Why ring topology used? 
+Simplifies message passing. 
+
+4. What messages are used? 
+
+
+ELECTION 
+
+
+LEADER 
+
+
+
+5. Advantage? 
+Simple implementation. 
+
+6. Disadvantage? 
+Election slower due to circular message passing. 
+
+Applications of Election Algorithms 
+Used in: 
+
+
+Distributed databases 
+
+
+Cloud computing 
+
+
+Cluster systems 
+
+
+Distributed file systems 
+
+
+Distributed operating systems 
+
+
+
+Practical Applications 
+SystemUseHadoopMaster node electionKubernetesLeader electionDistributed DBCoordinator selectionCloud systemsFailover management 
+
+Short Viva Summary 
+Bully Algorithm 
+
+Highest alive process becomes leader by sending ELECTION and OK messages. 
+
+Ring Algorithm 
+
+Processes arranged in ring circulate election message; highest ID becomes coordinator. 
+oordinator messages. 
